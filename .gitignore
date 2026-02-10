@@ -3,18 +3,16 @@ bin/
 obj/
 *.user
 *.suo
-*.cache
 *.log
 
-# Rider / VS / VSCode
-.vs/
-.idea/
-.vscode/
+# EF
+Migrations/
+
+# Angular
+node_modules/
+dist/
+.angular/
 
 # Secrets
 appsettings.Development.json
-appsettings.Production.json
-
-# OS
-Thumbs.db
-.DS_Store
+.env
