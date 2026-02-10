@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# Rider / VS / VSCode
+.vs/
+.idea/
+.vscode/
+
+# Secrets
+appsettings.Development.json
+appsettings.Production.json
+
+# OS
+Thumbs.db
+.DS_Store

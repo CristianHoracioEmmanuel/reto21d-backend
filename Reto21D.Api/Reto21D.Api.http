@@ -1,0 +1,6 @@
+@Reto21D.Api_HostAddress = http://localhost:5085
+
+GET {{Reto21D.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
