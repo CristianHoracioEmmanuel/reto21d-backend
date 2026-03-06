@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reto21D.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Reto21D.Api.Controllers;
 
 [ApiController]
 [Route("users")]
+[Authorize]
+
 public class UsersController : ControllerBase
 {
     private readonly AppDbContext _db;

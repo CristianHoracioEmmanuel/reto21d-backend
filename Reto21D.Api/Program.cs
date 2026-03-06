@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Reto21D.Api.Services;
 using Reto21D.Infrastructure.Persistence;
 using System.Text;
@@ -8,8 +9,6 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
@@ -18,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddScoped<TokenService>();
 
+// Auth JWT
 var jwtKey = builder.Configuration["Jwt:Key"]!;
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,16 +36,54 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+
+// CORS Angular
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", p =>
         p.WithOrigins("http://localhost:4200")
          .AllowAnyHeader()
-         .AllowAnyMethod()
-         .AllowCredentials());
+         .AllowAnyMethod());
+});
+
+// Swagger + JWT Bearer en UI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Reto21D.Api", Version = "v1" });
+
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Bearer {token}",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", securityScheme);
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { securityScheme, new string[] {} }
+    });
 });
 
 var app = builder.Build();
+
+// Seed automático al iniciar
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    DbSeeder.Seed(db);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -53,17 +91,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    DbSeeder.Seed(db);
-}
 
 app.Run();

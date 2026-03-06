@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Reto21D.Api.Dtos;
 using Reto21D.Api.Services;
 using Reto21D.Domain.Entities;
 using Reto21D.Infrastructure.Persistence;
-
 
 namespace Reto21D.Api.Controllers;
 
@@ -21,6 +21,7 @@ public class AuthController : ControllerBase
         _tokenService = tokenService;
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest req)
     {
@@ -45,6 +46,7 @@ public class AuthController : ControllerBase
         return Ok(new AuthResponse(token, user.Email));
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest req)
     {

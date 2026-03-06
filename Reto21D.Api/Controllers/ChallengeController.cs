@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reto21D.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace Reto21D.Api.Controllers;
 
 [ApiController]
 [Route("challenge")]
+[Authorize]
+
 public class ChallengeController : ControllerBase
 {
     private readonly AppDbContext _db;
